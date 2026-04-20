@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>知识加工处理 | 新点可信知识服务平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #F2F5F9;
+            color: #1E2A3E;
+            line-height: 1.4;
+            transition: background 0.3s, color 0.2s;
+        }
+
+        body.dark-mode {
+            background: #111827;
+            color: #E5E7EB;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            background: #0A2B5E;
+            color: white;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        body.dark-mode .top-nav {
+            background: #0B2A4A;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #3B82F6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        .platform-name {
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .platform-sub {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-left: 6px;
+        }
+
+        .search-area {
+            flex: 0 1 400px;
+            position: relative;
+        }
+        .search-area input {
+            width: 100%;
+            padding: 8px 16px 8px 36px;
+            border-radius: 32px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-area input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        .search-area input:focus {
+            background: rgba(255,255,255,0.25);
+        }
+        .search-area i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        .action-icons {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .icon-badge {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: opacity 0.2s;
+        }
+        .icon-badge:hover { opacity: 0.8; }
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #F97316;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 20px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: #5F9DF0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* 主体布局 */
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 左侧导航 (简化版，聚焦知识加工处理) */
+        .sidebar {
+            width: 260px;
+            background: white;
+            transition: width 0.2s ease;
+            box-shadow: 1px 0 6px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        body.dark-mode .sidebar {
+            background: #1F2937;
+        }
+        .sidebar-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px solid #eef2f6;
+        }
+        .collapse-btn {
+            background: #F0F4F9;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        .nav-menu {
+            flex: 1;
+            padding: 16px 12px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        body.dark-mode .nav-item {
+            color: #D1D5DB;
+        }
+        .nav-item.active {
+            background: #EFF6FF;
+            color: #0A5B8C;
+        }
+        .nav-item i {
+            width: 22px;
+        }
+
+        /* 内容区 */
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+
+        /* 页面标题与操作栏 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .primary-btn {
+            background: #1E5AA0;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .secondary-btn {
+            background: white;
+            border: 1px solid #DCE3EC;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .primary-btn:hover { background: #0F4A82; }
+        .secondary-btn:hover { background: #F0F4F9; }
+
+        /* 表格区域 - 重新设计 */
+        .data-table-wrapper {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            overflow-x: auto;
+            border: 1px solid #eaedf2;
+        }
+        body.dark-mode .data-table-wrapper {
+            background: #1F2A3E;
+            border-color: #2d3748;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 800px;
+        }
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eff2f8;
+        }
+        body.dark-mode th, body.dark-mode td {
+            border-bottom-color: #2d3748;
+        }
+        th {
+            background: #F9FAFE;
+            font-weight: 600;
+            color: #1F3A5F;
+        }
+        body.dark-mode th {
+            background: #111827;
+            color: #CBD5E1;
+        }
+        /* 下拉菜单样式 */
+        .data-source-select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #DCE3EC;
+            background: #FCFDFF;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 140px;
+        }
+        body.dark-mode .data-source-select {
+            background: #2D3748;
+            border-color: #4B5563;
+            color: #E5E7EB;
+        }
+        .data-source-select:focus {
+            outline: none;
+            border-color: #1E5AA0;
+            box-shadow: 0 0 0 2px rgba(30,90,160,0.1);
+        }
+        .code-input {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #DCE3EC;
+            background: #FCFDFF;
+            font-size: 0.8rem;
+            width: 100px;
+        }
+        body.dark-mode .code-input {
+            background: #2D3748;
+            border-color: #4B5563;
+            color: #E5E7EB;
+        }
+        .badge-code {
+            background: #F0F2F5;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: #4B6584;
+        }
+        .action-icons-cell {
+            display: flex;
+            gap: 12px;
+        }
+        .edit-icon, .save-icon, .delete-icon {
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .edit-icon:hover { color: #1E5AA0; }
+        .save-icon:hover { color: #10B981; }
+        .delete-icon:hover { color: #E53E3E; }
+
+        /* 底部栏 */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9edf2;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #5c6f87;
+            flex-wrap: wrap;
+        }
+        body.dark-mode .footer {
+            background: #111827;
+            border-color: #2d3748;
+        }
+        .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+        .footer-links span {
+            cursor: pointer;
+        }
+
+        /* 提示 */
+        .custom-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1F2937;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        body.dark-mode .custom-toast {
+            background: #374151;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-landmark"></i></div>
+            <div class="platform-name">新点可信知识服务平台<span class="platform-sub"> · 知识加工处理</span></div>
+        </div>
+        <div class="search-area">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="全局搜索：知识要素/数据源...">
+        </div>
+        <div class="action-icons">
+            <div class="icon-badge"><i class="far fa-bell"></i><span class="badge">3</span></div>
+            <div class="icon-badge"><i class="far fa-check-circle"></i><span class="badge">5</span></div>
+            <div class="user-info">
+                <div class="avatar">张</div>
+                <span>张三 <i class="fas fa-chevron-down"></i></span>
+            </div>
+            <button class="theme-toggle" id="darkModeToggle"><i class="fas fa-moon"></i></button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="collapse-btn" id="collapseBtn"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active"><i class="fas fa-microchip"></i><span>知识加工处理</span></div>
+                <div class="nav-item"><i class="fas fa-upload"></i><span>批量导入</span></div>
+                <div class="nav-item"><i class="fas fa-history"></i><span>加工记录</span></div>
+            </div>
+        </div>
+
+        <!-- 内容区 -->
+        <div class="content-area">
+            <div class="page-header">
+                <div class="page-title">
+                    <i class="fas fa-microchip"></i> 知识要素加工
+                    <span style="font-size:0.7rem; background:#EFF3F8; padding:2px 10px; border-radius:30px;">待加工要素列表</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="secondary-btn" id="batchProcessBtn"><i class="fas fa-layer-group"></i> 智能引用</button>
+                    <button class="primary-btn" id="submitProcessBtn"><i class="fas fa-check-circle"></i> 提交加工</button>
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table id="knowledgeTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">序号</th>
+                            <th>知识要素名称</th>
+                            <th style="width: 180px;">数据源</th>
+                            <th>源字段</th>
+                            <th style="width: 130px;">代码集</th>
+                            <th style="width: 100px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 16px; font-size:0.7rem; color:#8A99B0; display: flex; justify-content: space-between;">
+                <span><i class="fas fa-database"></i> 共计 <span id="totalCount">0</span> 条知识要素</span>
+                <span><i class="fas fa-info-circle"></i> 支持修改数据源与代码集，点击保存生效</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+        <div>© 2026 新点可信知识服务平台 版权所有 | 苏ICP备 24080123号</div>
+        <div class="footer-links">
+            <span>技术支持</span><span>使用指南</span><span>隐私说明</span><span>政策声明</span>
+        </div>
+    </div>
+</div>
+<div class="custom-toast" id="toast"></div>
+
+<script>
+    // 原始数据（根据要求定义）
+    const rawData = [
+        { 序号: 1, 知识要素名称: "姓名", 数据源: "自然人信息", 源字段: "姓名", 代码集: "" },
+        { 序号: 2, 知识要素名称: "身份证号码", 数据源: "自然人信息", 源字段: "身份证号码", 代码集: "" },
+        { 序号: 3, 知识要素名称: "居住地", 数据源: "自然人信息", 源字段: "居住地", 代码集: "" },
+        { 序号: 4, 知识要素名称: "学历", 数据源: "教育信息", 源字段: "学历", 代码集: "" },
+        { 序号: 5, 知识要素名称: "是否购房", 数据源: "房产信息", 源字段: "是否购房", 代码集: "是否" },
+        { 序号: 6, 知识要素名称: "是否已生育", 数据源: "生育信息", 源字段: "是否已生育", 代码集: "是否" },
+        { 序号: 7, 知识要素名称: "子女姓名", 数据源: "生育信息", 源字段: "子女姓名", 代码集: "" },
+        { 序号: 8, 知识要素名称: "子女身份证号码", 数据源: "生育信息", 源字段: "子女身份证号码", 代码集: "" },
+        { 序号: 9, 知识要素名称: "子女年龄", 数据源: "生育信息", 源字段: "子女年龄", 代码集: "" },
+        { 序号: 10, 知识要素名称: "学校名称", 数据源: "学校信息", 源字段: "学校名称", 代码集: "" }
+    ];
+
+    // 提取去重后的数据源列表（用于下拉菜单）
+    function getDistinctDataSources() {
+        const sources = rawData.map(item => item.数据源);
+        return [...new Set(sources)];
+    }
+
+    const dataSourceOptions = getDistinctDataSources(); // ["自然人信息","教育信息","房产信息","生育信息","学校信息"]
+
+    // 存储可编辑的数据副本
+    let editableData = JSON.parse(JSON.stringify(rawData));
+
+    // 渲染表格（使用下拉菜单展示数据源，默认选中当前值）
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const totalSpan = document.getElementById('totalCount');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        editableData.forEach((item, idx) => {
+            const row = tbody.insertRow();
+            // 序号列
+            const cellSeq = row.insertCell(0);
+            cellSeq.innerText = item.序号;
+            // 知识要素名称
+            const cellName = row.insertCell(1);
+            cellName.innerText = item.知识要素名称;
+            // 数据源（下拉菜单）
+            const cellSource = row.insertCell(2);
+            const select = document.createElement('select');
+            select.className = 'data-source-select';
+            select.setAttribute('data-row-idx', idx);
+            // 填充所有去重后的数据源选项
+            dataSourceOptions.forEach(src => {
+                const option = document.createElement('option');
+                option.value = src;
+                option.textContent = src;
+                if (src === item.数据源) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            select.addEventListener('change', (e) => {
+                const newSource = e.target.value;
+                editableData[idx].数据源 = newSource;
+                showToast(`已将"${item.知识要素名称}"的数据源修改为：${newSource}`);
+                // 不重新渲染整个表格，但更新内存，保留当前编辑状态
+                // 为了代码集联动？简单处理只改内存，无需重新渲染。
+            });
+            cellSource.appendChild(select);
+            
+            // 源字段（可编辑文本）
+            const cellField = row.insertCell(3);
+            const fieldInput = document.createElement('input');
+            fieldInput.type = 'text';
+            fieldInput.value = item.源字段;
+            fieldInput.className = 'code-input';
+            fieldInput.style.width = '140px';
+            fieldInput.addEventListener('change', (e) => {
+                editableData[idx].源字段 = e.target.value;
+                showToast(`源字段已更新为：${e.target.value}`);
+            });
+            cellField.appendChild(fieldInput);
+            
+            // 代码集（可编辑，部分有默认值）
+            const cellCode = row.insertCell(4);
+            const codeInput = document.createElement('input');
+            codeInput.type = 'text';
+            codeInput.value = item.代码集 || '';
+            codeInput.placeholder = '请输入代码集';
+            codeInput.className = 'code-input';
+            codeInput.style.width = '120px';
+            codeInput.addEventListener('change', (e) => {
+                editableData[idx].代码集 = e.target.value;
+                showToast(`代码集已更新`);
+            });
+            cellCode.appendChild(codeInput);
+            
+            // 操作按钮：保存单行 & 删除（保存即同步内存）
+            const cellAction = row.insertCell(5);
+            cellAction.className = 'action-icons-cell';
+            const saveIcon = document.createElement('i');
+            saveIcon.className = 'fas fa-save save-icon';
+            saveIcon.title = '保存当前修改';
+            saveIcon.style.marginRight = '12px';
+            saveIcon.addEventListener('click', () => {
+                // 保存时同步下拉菜单和输入框最新值已经通过change事件同步到editableData，无需额外动作
+                showToast(`已保存“${item.知识要素名称}”的配置`);
+            });
+            const deleteIcon = document.createElement('i');
+            deleteIcon.className = 'fas fa-trash-alt delete-icon';
+            deleteIcon.title = '删除该要素';
+            deleteIcon.addEventListener('click', () => {
+                if (confirm(`确定删除知识要素“${item.知识要素名称}”吗？`)) {
+                    editableData.splice(idx, 1);
+                    renderTable(); // 重新渲染
+                    showToast(`已删除要素：${item.知识要素名称}`);
+                }
+            });
+            cellAction.appendChild(saveIcon);
+            cellAction.appendChild(deleteIcon);
+        });
+        if (totalSpan) totalSpan.innerText = editableData.length;
+    }
+
+    // 提交加工（汇总所有加工后的数据）
+    function submitProcessing() {
+        // 收集当前最新数据
+        const processedData = editableData.map(item => ({
+            序号: item.序号,
+            知识要素名称: item.知识要素名称,
+            数据源: item.数据源,
+            源字段: item.源字段,
+            代码集: item.代码集 || ''
+        }));
+        console.log('提交加工数据:', processedData);
+        showToast(`知识加工处理已提交！共处理 ${processedData.length} 条知识要素`, 3000);
+        // 实际业务可在此处发送API请求
+    }
+
+    // 智能引用模拟
+    function batchProcess() {
+        showToast(`智能引用功能：（模拟）`);
+    }
+
+    // 显示提示
+    function showToast(msg, duration = 2000) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.innerText = msg;
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, duration);
+    }
+
+    // 折叠侧边栏
+    let sidebarCollapsed = false;
+    const sidebar = document.querySelector('.sidebar');
+    const collapseBtn = document.getElementById('collapseBtn');
+    if (collapseBtn) {
+        collapseBtn.addEventListener('click', () => {
+            sidebarCollapsed = !sidebarCollapsed;
+            if (sidebarCollapsed) {
+                sidebar.style.width = '72px';
+                document.querySelectorAll('.nav-item span').forEach(span => span.style.display = 'none');
+            } else {
+                sidebar.style.width = '260px';
+                document.querySelectorAll('.nav-item span').forEach(span => span.style.display = 'inline');
+            }
+        });
+    }
+
+    // 深色模式
+    function initDarkMode() {
+        const toggleBtn = document.getElementById('darkModeToggle');
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = toggleBtn.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+    }
+
+    // 按钮事件绑定
+    document.getElementById('submitProcessBtn')?.addEventListener('click', submitProcessing);
+    document.getElementById('batchProcessBtn')?.addEventListener('click', batchProcess);
+    
+    // 初始渲染
+    renderTable();
+    initDarkMode();
+    
+    // 底部链接点击提示
+    document.querySelectorAll('.footer-links span').forEach(link => {
+        link.addEventListener('click', () => showToast(`《${link.innerText}》政务规范文档`));
+    });
+    // 消息提醒简单演示
+    document.querySelectorAll('.icon-badge').forEach(badge => {
+        badge.addEventListener('click', () => showToast('您有新消息或待办提醒'));
+    });
+</script>
+</body>
+</html>

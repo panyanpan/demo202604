@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>调用明细 - 知识溯源 | 新点可信知识服务平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #F2F5F9;
+            color: #1E2A3E;
+            line-height: 1.5;
+            padding: 24px 32px;
+        }
+
+        body.dark-mode {
+            background: #111827;
+            color: #E5E7EB;
+        }
+
+        /* 主容器 */
+        .detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 返回按钮与标题区 */
+        .header-bar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .back-btn {
+            background: white;
+            border: 1px solid #DCE3EC;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        body.dark-mode .back-btn {
+            background: #1F2937;
+            border-color: #4B5563;
+            color: #E5E7EB;
+        }
+        .back-btn:hover {
+            background: #EFF3F8;
+            transform: translateX(-2px);
+        }
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 摘要卡片区 - 3列网格 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eaedf2;
+            transition: transform 0.2s;
+        }
+        body.dark-mode .summary-card {
+            background: #1F2A3E;
+            border-color: #2d3748;
+        }
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+        .summary-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6C7A91;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1E5AA0;
+        }
+        body.dark-mode .summary-value {
+            color: #60A5FA;
+        }
+        .summary-unit {
+            font-size: 0.85rem;
+            font-weight: normal;
+            color: #8A99B0;
+        }
+
+        /* 双栏布局: 左侧请求/响应信息，右侧调用链路 */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .info-card {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #eaedf2;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        body.dark-mode .info-card {
+            background: #1F2A3E;
+            border-color: #2d3748;
+        }
+        .card-header {
+            padding: 18px 24px;
+            background: #F9FAFE;
+            border-bottom: 1px solid #EFF3F8;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        body.dark-mode .card-header {
+            background: #111827;
+            border-bottom-color: #2D3748;
+        }
+        .card-body {
+            padding: 20px 24px;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 16px;
+            border-bottom: 1px dashed #F0F2F6;
+            padding-bottom: 12px;
+        }
+        .info-label {
+            width: 130px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #4B6584;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 0.85rem;
+            word-break: break-all;
+            font-family: 'Monaco', monospace;
+        }
+        .json-viewer {
+            background: #F8FAFE;
+            padding: 14px;
+            border-radius: 16px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        body.dark-mode .json-viewer {
+            background: #2D3A4B;
+        }
+        .trace-item {
+            padding: 14px 0;
+            border-left: 3px solid #E5E7EB;
+            margin-left: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .trace-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 10px;
+            background: #CBD5E1;
+        }
+        .trace-item.success::before {
+            background: #10B981;
+        }
+        .trace-item.fail::before {
+            background: #EF4444;
+        }
+        .trace-time {
+            font-size: 0.7rem;
+            color: #8A99B0;
+            margin-bottom: 4px;
+        }
+        .trace-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .trace-detail {
+            font-size: 0.75rem;
+            color: #6C7A91;
+            margin-top: 4px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+        .badge-success {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .badge-fail {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* 表格样式用于日志明细 */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .log-table th, .log-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #EFF3F8;
+        }
+        .theme-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            border-radius: 40px;
+            padding: 10px 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            border: none;
+            z-index: 99;
+            font-weight: 500;
+        }
+        @media (max-width: 900px) {
+            body { padding: 16px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="detail-container">
+    <!-- 头部 -->
+    <div class="header-bar">
+        <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> 返回溯源列表</button>
+        <div class="page-title">
+            <i class="fas fa-file-alt" style="color: #1E5AA0;"></i> 知识调用明细
+            <span style="font-size: 0.8rem; background:#EFF3F8; padding:4px 12px; border-radius:30px;">调用流水号: KC202604140001</span>
+        </div>
+    </div>
+
+    <!-- 概要卡片区 (动态数据) -->
+    <div class="summary-grid" id="summaryGrid">
+        <!-- 通过js动态渲染 -->
+    </div>
+
+    <!-- 详细内容区 -->
+    <div class="detail-grid">
+        <!-- 左侧：请求/响应详情 -->
+        <div class="info-card">
+            <div class="card-header">
+                <i class="fas fa-exchange-alt"></i> 请求与响应详情
+            </div>
+            <div class="card-body">
+                <div class="info-row">
+                    <div class="info-label">请求时间</div>
+                    <div class="info-value" id="reqTime">2026-04-14 14:32:18.236</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">调用主体</div>
+                    <div class="info-value" id="callSubject">市场监管局</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">知识要素</div>
+                    <div class="info-value" id="knowledgeElem">企业基本信息 / 统一社会信用代码</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">请求参数(Request)</div>
+                    <div class="info-value"><pre class="json-viewer" id="requestJson">{
+  "creditCode": "91110105MA01234567",
+  "fields": ["entName", "legalPerson", "regStatus"]
+}</pre></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">响应结果(Response)</div>
+                    <div class="info-value"><pre class="json-viewer" id="responseJson">{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "entName": "北京科创数字科技有限公司",
+    "legalPerson": "张伟",
+    "regStatus": "存续"
+  }
+}</pre></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">响应耗时</div>
+                    <div class="info-value" id="costTime">187 ms</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：调用链路与状态 -->
+        <div class="info-card">
+            <div class="card-header">
+                <i class="fas fa-project-diagram"></i> 调用链路 & 状态
+            </div>
+            <div class="card-body" id="traceContainer">
+                <!-- 动态填充trace链路 -->
+            </div>
+            <div class="card-header" style="border-top: 1px solid #EFF3F8;">
+                <i class="fas fa-list-ul"></i> 调用日志片段
+            </div>
+            <div class="card-body" style="padding: 0 0 12px 0;">
+                <table class="log-table" id="logTable">
+                    <thead><tr><th>时间</th><th>级别</th><th>日志内容</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部额外信息 -->
+    <div style="background: white; border-radius: 20px; padding: 16px 24px; border:1px solid #eaedf2; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; flex-wrap:wrap; gap:12px;">
+            <span><i class="fas fa-database"></i> 数据源: 可信知识库(主库) | 缓存命中: 否</span>
+            <span><i class="fas fa-code-branch"></i> 知识版本: v2.3.1</span>
+            <span><i class="fas fa-user-check"></i> 鉴权方式: OAuth2.0</span>
+        </div>
+    </div>
+</div>
+
+<button class="theme-fab" id="darkModeToggle"><i class="fas fa-moon"></i> 深色模式</button>
+
+<script>
+    // 模拟从URL参数获取调用ID，为了演示动态展示不同数据（根据query参数模拟不同明细）
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+    
+    // 模拟不同的明细数据集 (根据调用主体或时间展示变化)
+    const detailMappings = {
+        default: {
+            summary: {
+                totalCalls: 8900,
+                successCount: 8890,
+                failCount: 10,
+                successRate: "99.89%"
+            },
+            reqTime: "2026-04-14 14:32:18.236",
+            callSubject: "市场监管局",
+            knowledgeElem: "企业基本信息 / 统一社会信用代码",
+            requestJson: `{
+  "creditCode": "91110105MA01234567",
+  "fields": ["entName", "legalPerson", "regStatus", "regCapital"]
+}`,
+            responseJson: `{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "entName": "北京科创数字科技有限公司",
+    "legalPerson": "张伟",
+    "regStatus": "存续",
+    "regCapital": "1000万元"
+  },
+  "traceId": "a1b2c3d4e5f6"
+}`,
+            costTime: "187 ms",
+            trace: [
+                { name: "API网关认证", time: "14:32:18.100", status: "success", detail: "Token校验通过, 解析主体信息" },
+                { name: "知识路由寻址", time: "14:32:18.125", status: "success", detail: "命中知识:企业信用库, 路由节点:knowledge-gate-01" },
+                { name: "知识引擎处理", time: "14:32:18.210", status: "success", detail: "执行数据脱敏及字段映射, 耗时82ms" },
+                { name: "结果封装返回", time: "14:32:18.236", status: "success", detail: "响应大小 1.2KB" }
+            ],
+            logs: [
+                { time: "14:32:18.101", level: "INFO", content: "接收到调用请求, clientId=market_supervise" },
+                { time: "14:32:18.126", level: "DEBUG", content: "知识路由匹配到要素:企业信息, 版本v2" },
+                { time: "14:32:18.211", level: "INFO", content: "数据查询耗时76ms, 返回记录1条" },
+                { time: "14:32:18.237", level: "INFO", content: "调用成功, 写入审计日志" }
+            ]
+        },
+        market: {
+            summary: { totalCalls: 1200, successCount: 1195, failCount: 5, successRate: "99.58%" },
+            reqTime: "2026-04-13 09:15:22.451",
+            callSubject: "城管局",
+            knowledgeElem: "城市管理案件信息",
+            requestJson: `{ "caseId": "CG202604130001", "fields": ["location", "type", "status"] }`,
+            responseJson: `{ "code": 200, "data": { "location": "朝阳路", "type": "占道经营", "status": "处理中" } }`,
+            costTime: "203 ms",
+            trace: [
+                { name: "API网关认证", time: "09:15:22.300", status: "success", detail: "白名单验证通过" },
+                { name: "知识路由寻址", time: "09:15:22.380", status: "success", detail: "调用城市治理知识库" },
+                { name: "知识引擎处理", time: "09:15:22.440", status: "success", detail: "提取案件要素" }
+            ],
+            logs: [
+                { time: "09:15:22.310", level: "INFO", content: "城管局调用城市管理要素" },
+                { time: "09:15:22.450", level: "INFO", content: "返回结果成功" }
+            ]
+        }
+    };
+    
+    // 根据调用主体或URL参数模拟展示不同内容，默认为市场监管局
+    let currentDetail = detailMappings.default;
+    const subjectParam = getQueryParam('subject') || getQueryParam('caller');
+    if (subjectParam === '城管局') {
+        currentDetail = detailMappings.market;
+    }
+    // 也可以根据其他参数模拟不同的显示
+    const timeParam = getQueryParam('date');
+    if (timeParam === '2026-04-13') {
+        currentDetail = detailMappings.market;
+    }
+    
+    // 渲染概要卡片
+    function renderSummary() {
+        const summaryGrid = document.getElementById('summaryGrid');
+        const s = currentDetail.summary;
+        summaryGrid.innerHTML = `
+            <div class="summary-card">
+                <div class="summary-label"><i class="fas fa-chart-line"></i> 调用总次数(当日)</div>
+                <div class="summary-value">${s.totalCalls.toLocaleString()}<span class="summary-unit"> 次</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label"><i class="fas fa-check-circle"></i> 调用成功数</div>
+                <div class="summary-value" style="color:#10B981;">${s.successCount.toLocaleString()}<span class="summary-unit"> 次</span></div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label"><i class="fas fa-times-circle"></i> 调用失败数</div>
+                <div class="summary-value" style="color:#EF4444;">${s.failCount.toLocaleString()}<span class="summary-unit"> 次</span><span style="font-size:0.8rem;"> (成功率 ${s.successRate})</span></div>
+            </div>
+        `;
+    }
+    
+    // 渲染调用链路
+    function renderTrace() {
+        const container = document.getElementById('traceContainer');
+        if (!container) return;
+        const traces = currentDetail.trace;
+        let html = `<div style="margin-bottom: 12px; font-weight:500;"><i class="fas fa-code-branch"></i> 执行链路追踪</div>`;
+        traces.forEach(t => {
+            const statusClass = t.status === 'success' ? 'success' : 'fail';
+            html += `
+                <div class="trace-item ${statusClass}">
+                    <div class="trace-time"><i class="far fa-clock"></i> ${t.time}</div>
+                    <div class="trace-name">${t.name} <span class="badge ${t.status === 'success' ? 'badge-success' : 'badge-fail'}">${t.status === 'success' ? '成功' : '失败'}</span></div>
+                    <div class="trace-detail">${t.detail}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    // 渲染日志表格
+    function renderLogs() {
+        const tbody = document.querySelector('#logTable tbody');
+        if (!tbody) return;
+        const logs = currentDetail.logs;
+        tbody.innerHTML = '';
+        logs.forEach(log => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = log.time;
+            const levelCell = row.insertCell(1);
+            levelCell.innerText = log.level;
+            levelCell.style.fontWeight = 'bold';
+            if (log.level === 'INFO') levelCell.style.color = '#3B82F6';
+            if (log.level === 'DEBUG') levelCell.style.color = '#8B5CF6';
+            if (log.level === 'ERROR') levelCell.style.color = '#EF4444';
+            row.insertCell(2).innerText = log.content;
+        });
+    }
+    
+    // 填充基本信息
+    function fillBasicInfo() {
+        document.getElementById('reqTime').innerText = currentDetail.reqTime;
+        document.getElementById('callSubject').innerText = currentDetail.callSubject;
+        document.getElementById('knowledgeElem').innerText = currentDetail.knowledgeElem;
+        document.getElementById('requestJson').innerText = currentDetail.requestJson;
+        document.getElementById('responseJson').innerText = currentDetail.responseJson;
+        document.getElementById('costTime').innerText = currentDetail.costTime;
+    }
+    
+    // 深色模式
+    function initDarkMode() {
+        const toggleBtn = document.getElementById('darkModeToggle');
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = toggleBtn.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                toggleBtn.innerHTML = '<i class="fas fa-sun"></i> 浅色模式';
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                toggleBtn.innerHTML = '<i class="fas fa-moon"></i> 深色模式';
+            }
+        });
+    }
+    
+    function goBack() {
+        window.history.back();
+    }
+    
+    // 初始化所有数据
+    function initPage() {
+        renderSummary();
+        fillBasicInfo();
+        renderTrace();
+        renderLogs();
+        initDarkMode();
+    }
+    
+    initPage();
+    
+    // 可选：监听外部消息模拟
+    window.addEventListener('load', () => {
+        // 可以添加一些动画
+    });
+</script>
+</body>
+</html>

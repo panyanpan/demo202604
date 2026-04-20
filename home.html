@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>新点可信知识服务平台</title>
+    <!-- 使用Inter与系统默认无衬线字体，政务标准风格 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome 6 (免费图标库，用于图标) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #F2F5F9;
+            /* 浅灰政务背景 */
+            color: #1E2A3E;
+            line-height: 1.4;
+            transition: background 0.3s, color 0.2s;
+        }
+
+        /* 深色模式变量 */
+        body.dark-mode {
+            background: #111827;
+            color: #E5E7EB;
+        }
+
+        /* 全局滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #9aa9bc;
+            border-radius: 4px;
+        }
+
+        /* 主容器 */
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 (政务蓝主色调) */
+        .top-nav {
+            background: #0A2B5E;
+            /* 深政务蓝 */
+            color: white;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        body.dark-mode .top-nav {
+            background: #0B2A4A;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #3B82F6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+
+        .platform-sub {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-left: 6px;
+        }
+
+        .search-area {
+            flex: 0 1 400px;
+            position: relative;
+        }
+
+        .search-area input {
+            width: 100%;
+            padding: 8px 16px 8px 36px;
+            border-radius: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-area input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-area input:focus {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .search-area i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .action-icons {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-badge {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: opacity 0.2s;
+        }
+
+        .icon-badge:hover {
+            opacity: 0.8;
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #F97316;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 20px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: #5F9DF0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* 主体布局: 无左侧导航栏，内容区全宽 */
+        .main-layout {
+            flex: 1;
+            padding: 24px 32px;
+        }
+
+        /* 第一块：通知公告+待办+高频应用 三列网格 */
+        .row-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding: 22px 20px;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .card {
+            background: #1F2A3E;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-left: 4px solid #2B6EB0;
+            padding-left: 12px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notice-list,
+        .todo-list {
+            list-style: none;
+        }
+
+        .notice-list li,
+        .todo-list li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+            border-bottom: 1px dashed #eff2f8;
+            padding-bottom: 8px;
+        }
+
+        .notice-title {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .tag {
+            background: #F0F2F5;
+            border-radius: 14px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .app-item {
+            background: #F8FAFE;
+            border-radius: 14px;
+            padding: 12px 6px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        body.dark-mode .app-item {
+            background: #2D3748;
+        }
+
+        .app-item i {
+            display: block;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: #2B6EB0;
+        }
+
+        .app-item:hover {
+            background: #E9F0FE;
+            transform: scale(0.98);
+        }
+
+        /* 第二块：知识数据展示 每行3个div */
+        .knowledge-section {
+            margin-top: 8px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .more-btn {
+            background: none;
+            border: none;
+            color: #2B6EB0;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+
+        .more-btn:hover {
+            background: rgba(43, 110, 176, 0.1);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .data-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eaedf2;
+        }
+
+        body.dark-mode .data-card {
+            background: #1F2A3E;
+            border-color: #2d3748;
+        }
+
+        .data-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .data-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0A2B5E;
+        }
+
+        body.dark-mode .data-title {
+            color: #A0C4FF;
+        }
+
+        .data-meta {
+            font-size: 0.75rem;
+            color: #6c7a91;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        body.dark-mode .data-meta {
+            color: #9CA3AF;
+        }
+
+        .api-link {
+            font-size: 0.7rem;
+            background: #F2F5F9;
+            padding: 8px 10px;
+            border-radius: 14px;
+            word-break: break-all;
+            margin: 14px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        body.dark-mode .api-link {
+            background: #2D3A4B;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-outline,
+        .btn-primary {
+            border: none;
+            padding: 7px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .btn-outline {
+            background: #EFF3F8;
+            color: #1F3A5F;
+        }
+
+        .btn-primary {
+            background: #1E5AA0;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: #E2E8F0;
+        }
+
+        .btn-primary:hover {
+            background: #0F4A82;
+        }
+
+        .count-number {
+            font-weight: 700;
+            font-size: 1rem;
+            display: inline-block;
+        }
+
+        /* 底部栏 */
+        .footer {
+            background: white;
+            border-top: 1px solid #e9edf2;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #5c6f87;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        body.dark-mode .footer {
+            background: #111827;
+            border-color: #2d3748;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .footer-links span {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .footer-links span:hover {
+            color: #2B6EB0;
+        }
+
+        /* 轮播样式 */
+        .carousel-wrapper {
+            overflow: hidden;
+            border-radius: 12px;
+            background: #F8FAFE;
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }
+
+        body.dark-mode .carousel-wrapper {
+            background: #2D3748;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.4s ease;
+        }
+
+        .carousel-item {
+            flex: 0 0 100%;
+            padding: 8px 12px;
+            font-weight: 500;
+            color: #1F3A5F;
+        }
+
+        body.dark-mode .carousel-item {
+            color: #E2E8F0;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1300px) {
+            .data-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .row-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                padding: 16px;
+            }
+
+            .top-nav {
+                padding: 0 16px;
+            }
+
+            .search-area {
+                flex-basis: 200px;
+            }
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- 顶部导航栏：完全符合政务要求，无侧边栏后保留完整功能 -->
+        <div class="top-nav">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-landmark"></i></div>
+                <div class="platform-name">新点可信知识服务平台<span class="platform-sub"></span></div>
+            </div>
+            <div class="search-area">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="全局搜索：知识/待办/通知...">
+            </div>
+            <div class="action-icons">
+                <div class="icon-badge" id="msgNotice"><i class="far fa-bell"></i><span class="badge">3</span></div>
+                <div class="icon-badge" id="todoRemind"><i class="far fa-check-circle"></i><span class="badge">5</span>
+                </div>
+                <div class="user-info">
+                    <div class="avatar">张</div>
+                    <span>张三 <i class="fas fa-chevron-down"></i></span>
+                </div>
+                <button class="theme-toggle" id="darkModeToggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+
+        <!-- 主内容区：无左侧导航栏，内容区域完全展开 -->
+        <div class="main-layout">
+            <!-- 第一块：通知公告 + 待办事项 + 高频应用快捷入口 -->
+            <div class="row-cards">
+                <!-- 通知公告卡片 带轮播效果 -->
+                <div class="card">
+                    <div class="card-header">📢 通知公告 <i class="far fa-newspaper"></i></div>
+                    <div class="carousel-wrapper" id="noticeCarousel">
+                        <div class="carousel-track" id="carouselTrack">
+                            <div class="carousel-item">📌 关于2026年第一季度数字政务考核通报</div>
+                            <div class="carousel-item">📌 关于组织“数据安全法”线上培训的通知</div>
+                            <div class="carousel-item">📌 政务云平台升级维护公告（4月15日 22:00）</div>
+                        </div>
+                    </div>
+                    <ul class="notice-list">
+                        <li><span class="notice-title">▪ 国务院办公厅电子政务工作指引（2026年修订版）</span><span class="tag">重要</span></li>
+                        <li><span class="notice-title">▪ 关于开展政务服务效能督查专项行动的通知</span><span class="tag">紧急</span></li>
+                        <li><span class="notice-title">▪ 关于推荐2026年数字政府优秀案例的通知</span><span class="tag">申报</span></li>
+                    </ul>
+                </div>
+                <!-- 待办事项卡片 -->
+                <div class="card">
+                    <div class="card-header">✅ 待办事项 <span
+                            style="font-size:0.7rem; background:#F0F2F5; padding:2px 8px; border-radius:20px;">共5项</span>
+                    </div>
+                    <ul class="todo-list">
+                        <li>📄 关于“智慧政务数据中台”方案审批 <span>04-13</span></li>
+                        <li>📑 2026年第一季度知识库内容更新审核 <span class="tag" style="background:#FFE4E1;">今日</span></li>
+                        <li>📊 数据报表-企业信息统计待提交（逾期1天）<span>紧急</span></li>
+                        <li>👥 会议“数据治理专题研讨会”待确认 <span>04-14</span></li>
+                        <li>🔔 知识管理-待处理知识申请5条 <span>新</span></li>
+                    </ul>
+                </div>
+                <!-- 高频应用快捷入口（知识申请、知识溯源、知识管理、知识治理、知识运营）-->
+                <div class="card">
+                    <div class="card-header">⚡ 高频应用快捷入口</div>
+                    <div class="app-grid">
+                        <div class="app-item" data-module="知识申请"><i class="fas fa-file-alt"></i>知识申请</div>
+                        <div class="app-item" data-module="知识溯源"><i class="fas fa-code-branch"></i>知识溯源</div>
+                        <div class="app-item" data-module="知识管理"><i class="fas fa-database"></i>知识管理</div>
+                        <div class="app-item" data-module="知识治理"><i class="fas fa-robot"></i>知识治理</div>
+                        <div class="app-item" data-module="知识运营"><i class="fas fa-robot"></i>知识运营</div>
+                        <div class="app-item" data-module="系统管理"><i class="fas fa-robot"></i>系统管理</div>
+                    </div>
+                    <div style="margin-top: 16px; font-size:0.7rem; color:#6c7a91; text-align:center;">—— 一站式知识服务 ——
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二块：知识数据展示（每行3个div）企业信息、政策法规、事项指南、社保数据、学校信息、教育信息 -->
+            <div class="knowledge-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-database" style="color:#2B6EB0;"></i> 知识服务市场</h2>
+                    <button class="more-btn" id="moreDataBtn">更多 <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="data-grid" id="dataGrid">
+                    <!-- 动态通过js生成六个卡片，完全满足企业信息等展示，包含来源、发布时间、访问量、申请量、API接口、按钮 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部信息栏 -->
+        <div class="footer">
+            <div>© 2026 新点可信知识服务平台 版权所有 | 苏ICP备 24080123号 | 公安备案号 32010502000123</div>
+            <div class="footer-links">
+                <span>技术支持</span><span>使用指南</span><span>隐私说明</span><span>政策声明</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 知识数据资产定义 (完全符合题目要求)
+        const knowledgeItems = [
+            { name: "企业信息", source: "市场监管局", publishDate: "2026年4月1日", views: 100, applications: 20, api: "http://127.0.0.1/api/corpinfo" },
+            { name: "政策法规", source: "司法厅", publishDate: "2026年3月28日", views: 456, applications: 89, api: "http://127.0.0.1/api/policy" },
+            { name: "事项指南", source: "政务服务中心", publishDate: "2026年4月5日", views: 320, applications: 45, api: "http://127.0.0.1/api/guide" },
+            { name: "社保数据", source: "人力资源和社会保障局", publishDate: "2026年4月2日", views: 821, applications: 201, api: "http://127.0.0.1/api/social" },
+            { name: "学校信息", source: "教育局", publishDate: "2026年3月30日", views: 270, applications: 63, api: "http://127.0.0.1/api/school" },
+            { name: "教育信息", source: "教育厅", publishDate: "2026年4月7日", views: 534, applications: 102, api: "http://127.0.0.1/api/education" }
+        ];
+
+        // 动态渲染数据卡片，附带动态数字滚动效果
+        function renderDataCards() {
+            const container = document.getElementById('dataGrid');
+            if (!container) return;
+            container.innerHTML = '';
+            knowledgeItems.forEach(item => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'data-card';
+                // 使用 data-属性存储数值，滚动显示
+                cardDiv.innerHTML = `
+                <div class="data-title"><i class="fas ${getIconForName(item.name)}"></i> ${item.name}</div>
+                <div class="data-meta">
+                    <span><i class="fas fa-database"></i> 数据主体来源：${item.source}</span>
+                    <span><i class="far fa-calendar-alt"></i> 发布时间：${item.publishDate}</span>
+                </div>
+                <div class="data-meta">
+                    <span><i class="fas fa-eye"></i> 访问量：<span class="dynamic-number" data-value="${item.views}">0</span></span>
+                    <span><i class="fas fa-file-signature"></i> 申请量：<span class="dynamic-number" data-value="${item.applications}">0</span></span>
+                </div>
+                <div class="api-link"><i class="fas fa-plug"></i> API接口地址：${item.api}</div>
+                <div class="card-actions">
+                    <button class="btn-outline view-detail" data-name="${item.name}"><i class="fas fa-info-circle"></i> 查看详细</button>
+                    <button class="btn-primary apply-knowledge" data-name="${item.name}"><i class="fas fa-pen-alt"></i> 知识申请</button>
+                </div>
+            `;
+                container.appendChild(cardDiv);
+            });
+            // 触发数字滚动动画
+            animateNumbers();
+            attachCardEvents();
+        }
+
+        // 根据名称返回图标
+        function getIconForName(name) {
+            const map = {
+                "企业信息": "fa-building",
+                "政策法规": "fa-gavel",
+                "事项指南": "fa-compass",
+                "社保数据": "fa-chart-line",
+                "学校信息": "fa-school",
+                "教育信息": "fa-graduation-cap"
+            };
+            return map[name] || "fa-database";
+        }
+
+        // 动态数字滚动 (平滑效果)
+        function animateNumbers() {
+            const numberSpans = document.querySelectorAll('.dynamic-number');
+            numberSpans.forEach(span => {
+                const target = parseInt(span.getAttribute('data-value'), 10);
+                if (isNaN(target)) return;
+                let current = 0;
+                const duration = 800; // 毫秒
+                const stepTime = 16;
+                const steps = duration / stepTime;
+                const increment = target / steps;
+                let step = 0;
+                const timer = setInterval(() => {
+                    step++;
+                    current += increment;
+                    if (step >= steps) {
+                        span.innerText = target;
+                        clearInterval(timer);
+                    } else {
+                        span.innerText = Math.floor(current);
+                    }
+                }, stepTime);
+            });
+        }
+
+        // 绑定卡片内按钮事件
+        function attachCardEvents() {
+            document.querySelectorAll('.view-detail').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const name = btn.getAttribute('data-name');
+                    window.open('apply.html');
+                    // alert(`【查看详细】${name} 详细信息：包含元数据、血缘、质量报告等 (演示交互)`);
+                });
+            });
+            document.querySelectorAll('.apply-knowledge').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const name = btn.getAttribute('data-name');
+                    window.open('apply.html');
+                    //alert(`知识申请已提交：${name} 数据资产申请已进入审批流程。`);
+                });
+            });
+        }
+
+        // 公告轮播实现 (每4秒切换)
+        let carouselIndex = 0;
+        const track = document.getElementById('carouselTrack');
+        const items = track ? track.children : [];
+        function startCarousel() {
+            if (!track || items.length === 0) return;
+            setInterval(() => {
+                carouselIndex = (carouselIndex + 1) % items.length;
+                track.style.transform = `translateX(-${carouselIndex * 100}%)`;
+            }, 4000);
+        }
+
+        // 深色模式切换
+        const darkToggle = document.getElementById('darkModeToggle');
+        darkToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = darkToggle.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+
+        // 顶部消息与待办提醒交互
+        document.getElementById('msgNotice')?.addEventListener('click', () => alert('您有3条未读公告：关于政务云升级等重要通知。'));
+        document.getElementById('todoRemind')?.addEventListener('click', () => alert('待办事项：5项待处理，含公文审批、数据审核等。'));
+
+        // 更多按钮提示
+        document.getElementById('moreDataBtn')?.addEventListener('click', () => {
+            alert('展示全部知识数据资产 (共计6类核心数据，支持扩展更多主题)');
+        });
+
+        // 高频应用入口交互
+        document.querySelectorAll('.app-item').forEach(app => {
+            app.addEventListener('click', (e) => {
+                const moduleName = app.getAttribute('data-module') || app.innerText.trim();
+                if (moduleName == "知识溯源") {
+                    window.open('history.html');
+                } else {
+                    window.open('process.html');
+                }
+                //alert(`快速进入【${moduleName}】模块，高效协同政务办公。`);
+            });
+        });
+
+        // 底部链接简易交互
+        document.querySelectorAll('.footer-links span').forEach(link => {
+            link.addEventListener('click', (e) => {
+                alert(`《${link.innerText}》文档：遵循政务数字化标准规范。`);
+            });
+        });
+
+        // 初始化执行渲染及轮播
+        renderDataCards();
+        startCarousel();
+
+        // 模拟hover等纯css均已实现，确保任何额外细节
+    </script>
+</body>
+
+</html>

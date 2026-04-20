@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>知识申请</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #F2F5F9;
+            color: #1E2A3E;
+            line-height: 1.5;
+            padding: 24px 32px;
+        }
+
+        /* 深色模式 */
+        body.dark-mode {
+            background: #111827;
+            color: #E5E7EB;
+        }
+
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* 顶部按钮区 */
+        .action-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .action-bar {
+            background: #1F2937;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: #F0F4F9;
+            color: #2C3E50;
+            border: 1px solid #DCE3EC;
+        }
+
+        .btn-submit {
+            background: #1E5AA0;
+            color: white;
+            box-shadow: 0 2px 6px rgba(30, 90, 160, 0.2);
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
+        }
+
+        .btn-save:hover {
+            background: #E4E9F0;
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:hover {
+            background: #0F4A82;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel:hover {
+            background: #FEF2F2;
+            border-color: #FCA5A5;
+        }
+
+        /* 流程展示区 */
+        .process-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        body.dark-mode .process-bar {
+            background: #1F2937;
+        }
+
+        .process-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6B7280;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .process-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .step-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #4B5563;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .step-circle {
+            background: #2D3748;
+            color: #9CA3AF;
+        }
+
+        .step-circle.active {
+            background: #1E5AA0;
+            color: white;
+            box-shadow: 0 4px 10px rgba(30, 90, 160, 0.3);
+        }
+
+        .step-circle.completed {
+            background: #10B981;
+            color: white;
+        }
+
+        .step-text {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #E5E7EB;
+            margin: 0 8px;
+        }
+
+        body.dark-mode .step-line {
+            background: #374151;
+        }
+
+        @media (max-width: 700px) {
+            .process-steps {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .step-line {
+                display: none;
+            }
+        }
+
+        /* 表单卡片区域 */
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #EEF2F6;
+        }
+
+        body.dark-mode .form-card {
+            background: #1F2937;
+            border-color: #2D3A4B;
+        }
+
+        .card-header {
+            background: #F9FAFB;
+            padding: 18px 28px;
+            border-bottom: 1px solid #EFF3F8;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0A2B5E;
+        }
+
+        body.dark-mode .card-header {
+            background: #111827;
+            border-bottom-color: #2D3748;
+            color: #A0C4FF;
+        }
+
+        .card-body {
+            padding: 24px 28px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px 32px;
+        }
+
+        .field-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-bottom: 1px solid #F0F2F6;
+            padding-bottom: 12px;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #2C3E50;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        body.dark-mode .field-label {
+            color: #D1D5DB;
+        }
+
+        .field-meta {
+            font-size: 0.7rem;
+            font-weight: normal;
+            background: #EEF2F8;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #4B6584;
+        }
+
+        body.dark-mode .field-meta {
+            background: #2D3748;
+            color: #B9C8E5;
+        }
+
+        .field-placeholder {
+            font-size: 0.85rem;
+            color: #9AA9BC;
+            font-style: italic;
+            background: #F8FAFE;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border-left: 3px solid #CBD5E1;
+        }
+
+        body.dark-mode .field-placeholder {
+            background: #2D3A4B;
+            color: #9CA3AF;
+            border-left-color: #4B5563;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #E5E7EB;
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        body.dark-mode .data-table th,
+        body.dark-mode .data-table td {
+            border-color: #374151;
+        }
+
+        .data-table th {
+            background: #F9FAFB;
+            font-weight: 600;
+            width: 35%;
+        }
+
+        body.dark-mode .data-table th {
+            background: #111827;
+        }
+
+        .type-badge {
+            font-family: monospace;
+            font-size: 0.7rem;
+            background: #EFF3F8;
+            padding: 2px 8px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        /* 底部提示 */
+        .info-note {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #8A99B0;
+        }
+
+        .theme-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            border-radius: 40px;
+            padding: 12px 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            border: none;
+            z-index: 99;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.dark-mode .theme-fab {
+            background: #2D3748;
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+            }
+
+            .card-body {
+                grid-template-columns: 1fr;
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 顶部按钮区 -->
+        <div class="action-bar">
+            <button class="action-btn btn-save" id="saveDraftBtn"><i class="fas fa-save"></i> 保存草稿</button>
+            <button class="action-btn btn-submit" id="submitApplyBtn"><i class="fas fa-paper-plane"></i> 提交申请</button>
+            <button class="action-btn btn-cancel" id="cancelApplyBtn"><i class="fas fa-times"></i> 取消申请</button>
+        </div>
+
+        <!-- 流程展示区 -->
+        <div class="process-bar">
+            <div class="process-title"><i class="fas fa-chart-line"></i> 当前申请流程进度</div>
+            <div class="process-steps" id="processSteps">
+                <div class="step-item" data-step="0">
+                    <div class="step-circle">1</div>
+                    <div class="step-text">申请</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item" data-step="1">
+                    <div class="step-circle">2</div>
+                    <div class="step-text">数据局初审</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item" data-step="2">
+                    <div class="step-circle">3</div>
+                    <div class="step-text">主管部门审核</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item" data-step="3">
+                    <div class="step-circle">4</div>
+                    <div class="step-text">结束</div>
+                </div>
+            </div>
+        </div>
+        <div style="background: white; border-radius: 20px; padding: 20px 28px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 30px;">
+                <!-- 第一行第一列：申请人 -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: #2C3E50;"><span
+                            style="color: #e53e3e;">*</span> 申请人</label>
+                    <input type="text" placeholder="请输入申请人姓名"
+                        style="padding: 10px 14px; border-radius: 12px; border: 1px solid #DCE3EC; font-size: 0.85rem; transition: 0.2s; background: #FCFDFF; width: 100%;"
+                        onfocus="this.style.borderColor='#1E5AA0'; this.style.boxShadow='0 0 0 3px rgba(30,90,160,0.1)'"
+                        onblur="this.style.borderColor='#DCE3EC'; this.style.boxShadow='none'">
+                </div>
+                <!-- 第一行第二列：申请时间 -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: #2C3E50;"><span
+                            style="color: #e53e3e;">*</span> 申请时间</label>
+                    <input type="datetime-local" value="2026-04-14T10:30"
+                        style="padding: 10px 14px; border-radius: 12px; border: 1px solid #DCE3EC; font-size: 0.85rem; transition: 0.2s; background: #FCFDFF; width: 100%;"
+                        onfocus="this.style.borderColor='#1E5AA0'; this.style.boxShadow='0 0 0 3px rgba(30,90,160,0.1)'"
+                        onblur="this.style.borderColor='#DCE3EC'; this.style.boxShadow='none'">
+                </div>
+                <!-- 第二行第一列：申请原因 -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: #2C3E50;"><span
+                            style="color: #e53e3e;">*</span> 申请原因</label>
+                    <input type="text" placeholder="请输入申请原因"
+                        style="padding: 10px 14px; border-radius: 12px; border: 1px solid #DCE3EC; font-size: 0.85rem; transition: 0.2s; background: #FCFDFF; width: 100%;"
+                        onfocus="this.style.borderColor='#1E5AA0'; this.style.boxShadow='0 0 0 3px rgba(30,90,160,0.1)'"
+                        onblur="this.style.borderColor='#DCE3EC'; this.style.boxShadow='none'">
+                </div>
+                <!-- 第二行第二列：备注 -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: #2C3E50;">备注</label>
+                    <input type="text" placeholder="选填，可补充说明"
+                        style="padding: 10px 14px; border-radius: 12px; border: 1px solid #DCE3EC; font-size: 0.85rem; transition: 0.2s; background: #FCFDFF; width: 100%;"
+                        onfocus="this.style.borderColor='#1E5AA0'; this.style.boxShadow='0 0 0 3px rgba(30,90,160,0.1)'"
+                        onblur="this.style.borderColor='#DCE3EC'; this.style.boxShadow='none'">
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区：字段模板展示（仅字段名称+类型/长度，无具体值） -->
+        <div class="form-container" id="formContainer"></div>
+        <div class="info-note">
+            <i class="fas fa-info-circle"></i> 依据政务数据元标准，展示字段定义（类型/长度/约束），具体业务值待填写
+        </div>
+    </div>
+
+    <!-- 深色模式按钮 -->
+    <button class="theme-fab" id="darkModeToggle"><i class="fas fa-moon"></i> 深色模式</button>
+
+    <script>
+        // ============================================================
+        // 字段定义（无实际业务值，仅包含字段名称 + 类型 + 长度）
+        // 根据原始JSON结构重构，移除所有具体值，增加字段类型描述
+        // ============================================================
+        const fieldSchema = {
+            "企业基本信息": [
+                { name: "企业全称", type: "字符串", length: 200, required: true, note: "企业完整名称" },
+                { name: "企业简称", type: "字符串", length: 50, required: false, note: "企业简称/品牌" },
+                { name: "统一社会信用代码", type: "字符串", length: 18, required: true, note: "18位数字/字母" },
+                { name: "工商注册号", type: "字符串", length: 20, required: false, note: "工商登记号" },
+                { name: "组织机构代码", type: "字符串", length: 10, required: false, note: "格式XXXXXXXX-X" },
+                { name: "企业类型", type: "字符串", length: 80, required: true, note: "如有限责任公司" },
+                { name: "成立日期", type: "日期", length: "-", required: true, note: "YYYY-MM-DD" },
+                { name: "注册资本(万元)", type: "数值", length: "18,2", required: true, note: "单位：万元" },
+                { name: "实缴资本(万元)", type: "数值", length: "18,2", required: false, note: "实际缴纳资本" },
+                { name: "经营状态", type: "字符串", length: 20, required: true, note: "存续/在业/吊销等" },
+                { name: "核准日期", type: "日期", length: "-", required: false, note: "最新核准日" },
+                { name: "营业期限起始", type: "日期", length: "-", required: true, note: "营业开始日期" },
+                { name: "营业期限截止", type: "日期", length: "-", required: true, note: "营业截止日期" }
+            ],
+            "经营与注册信息": [
+                { name: "注册地址", type: "字符串", length: 300, required: true, note: "营业执照住所" },
+                { name: "注册地址行政区划代码", type: "字符串", length: 6, required: true, note: "国标6位代码" },
+                { name: "实际经营地址", type: "字符串", length: 300, required: false, note: "实际办公地址" },
+                { name: "经营范围", type: "大文本", length: 2000, required: true, note: "主营范围描述" },
+                { name: "行业分类", type: "字符串", length: 100, required: true, note: "国民经济行业分类" },
+                { name: "行业代码", type: "字符串", length: 10, required: true, note: "GB/T 4754代码" }
+            ],
+            "法人与联系人信息": [
+                { name: "法定代表人姓名", type: "字符串", length: 50, required: true, note: "法人代表" },
+                { name: "法人身份证号", type: "字符串", length: 18, required: true, note: "身份证/护照" },
+                { name: "法人联系电话", type: "字符串", length: 20, required: true, note: "手机/固话" },
+                { name: "法人邮箱", type: "字符串", length: 100, required: false, note: "电子邮箱" },
+                { name: "企业联系电话", type: "字符串", length: 20, required: true, note: "对外联络电话" },
+                { name: "企业传真", type: "字符串", length: 20, required: false, note: "传真号码" },
+                { name: "企业邮箱", type: "字符串", length: 100, required: true, note: "官方邮箱" },
+                { name: "企业官网", type: "字符串", length: 200, required: false, note: "网址" }
+            ],
+            "财务与税务信息": [
+                { name: "纳税人识别号", type: "字符串", length: 20, required: true, note: "统一信用代码一致" },
+                { name: "纳税人类型", type: "字符串", length: 30, required: true, note: "一般纳税人/小规模" },
+                { name: "开户银行", type: "字符串", length: 100, required: true, note: "基本户银行" },
+                { name: "银行账号", type: "字符串", length: 30, required: true, note: "银行账户号" },
+                { name: "开票地址", type: "字符串", length: 300, required: false, note: "发票邮寄地址" },
+                { name: "开票电话", type: "字符串", length: 20, required: false, note: "财务联系电话" }
+            ],
+            "资质与认证信息": [
+                { name: "高新技术企业", type: "布尔", length: "1", required: true, note: "是否高新认定" },
+                { name: "高新技术企业证书编号", type: "字符串", length: 30, required: false, note: "GR开头编号" },
+                { name: "ISO认证", type: "数组/多选", length: "-", required: false, note: "多选，如ISO9001" },
+                { name: "软件著作权数量", type: "整数", length: 10, required: false, note: "软著总数" },
+                { name: "专利数量", type: "整数", length: 10, required: false, note: "专利总数" }
+            ]
+        };
+
+        // 股东与股权信息使用单独表格结构（字段定义，无具体值）
+        const shareholderColumns = [
+            { name: "股东类型", type: "字符串", length: 30, required: true, note: "自然人股东/企业股东" },
+            { name: "股东姓名/名称", type: "字符串", length: 100, required: true, note: "股东全称" },
+            { name: "持股比例(%)", type: "数值", length: "10,2", required: true, note: "百分比" },
+            { name: "出资额(万元)", type: "数值", length: "18,2", required: true, note: "认缴出资额" }
+        ];
+
+        // 辅助生成占位提示文本
+        function getPlaceholderText(field) {
+            let requiredMark = field.required ? "（必填）" : "（选填）";
+            let lenInfo = field.length && field.length !== '-' ? `长度≤${field.length}` : '';
+            if (field.type === '大文本') lenInfo = '最大2000字符';
+            if (field.type === '数组/多选') lenInfo = '支持多值';
+            return `类型:${field.type} ${lenInfo} ${requiredMark} · ${field.note || ''}`;
+        }
+
+        // 渲染普通卡片（字段列表）
+        function renderFieldCard(title, fields) {
+            let fieldsHtml = '';
+            fields.forEach(field => {
+                fieldsHtml += `
+                <div class="field-item">
+                    <div class="field-label">
+                        <span>${escapeHtml(field.name)}</span>
+                        <span class="field-meta">${escapeHtml(field.type)} ${field.length && field.length !== '-' ? '长度:' + field.length : ''} ${field.required ? '必填' : '可选'}</span>
+                    </div>
+                    <div class="field-placeholder">
+                        <i class="fas fa-edit" style="font-size:0.7rem; margin-right:6px;"></i> ${getPlaceholderText(field)}
+                    </div>
+                </div>
+            `;
+            });
+            return `
+            <div class="form-card">
+                <div class="card-header"><i class="fas fa-table-list"></i> ${escapeHtml(title)}</div>
+                <div class="card-body">
+                    ${fieldsHtml}
+                </div>
+            </div>
+        `;
+        }
+
+        // 渲染股东表格（仅表头 + 空行示例，无具体值）
+        function renderShareholderTableSchema() {
+            let theadHtml = `<tr>`;
+            shareholderColumns.forEach(col => {
+                theadHtml += `<th>${escapeHtml(col.name)}<span class="type-badge" style="margin-left:8px;">${col.type} ${col.length}</span><br><span style="font-weight:normal; font-size:0.65rem;">${col.required ? '必填' : '选填'}</span></th>`;
+            });
+            theadHtml += `</tr>`;
+            // 展示一行占位空行（提示无具体值，用于录入）
+            let tbodyHtml = `<tr><td colspan="${shareholderColumns.length}" style="text-align:center; color:#9AA9BC;"><i class="fas fa-plus-circle"></i> 待录入股东信息（无具体值，根据定义填写）</td></tr>`;
+            // 也可以额外展示一行示例样式
+            return `
+            <div class="form-card">
+                <div class="card-header"><i class="fas fa-users"></i> 股东与股权信息</div>
+                <div class="card-body" style="display:block;">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>${theadHtml}</thead>
+                            <tbody>${tbodyHtml}</tbody>
+                        </table>
+                        <div class="field-placeholder" style="margin-top:12px; background:#F9F9FD;">
+                            <i class="fas fa-info-circle"></i> 依据政务数据规范：可动态增行，支持多条股东记录（字段类型及长度如上）
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+
+        // 安全转义
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function (c) {
+                return c;
+            });
+        }
+
+        // 渲染完整表单（仅字段定义，无业务值）
+        function renderFormSchema() {
+            const container = document.getElementById('formContainer');
+            if (!container) return;
+            let allCards = '';
+            // 企业基本信息
+            allCards += renderFieldCard('企业基本信息', fieldSchema["企业基本信息"]);
+            // 经营与注册信息
+            allCards += renderFieldCard('经营与注册信息', fieldSchema["经营与注册信息"]);
+            // 法人与联系人信息
+            allCards += renderFieldCard('法人与联系人信息', fieldSchema["法人与联系人信息"]);
+            // 财务与税务信息
+            allCards += renderFieldCard('财务与税务信息', fieldSchema["财务与税务信息"]);
+            // 资质与认证信息
+            allCards += renderFieldCard('资质与认证信息', fieldSchema["资质与认证信息"]);
+            // 股东表格（单独结构）
+            //allCards += renderShareholderTableSchema();
+
+            container.innerHTML = allCards;
+        }
+
+        // 流程交互（模拟提交、取消）
+        let currentStepIndex = 0; // 0:申请,1:数据局初审,2:主管部门审核,3:结束
+        function updateProcessStep(stepIndex) {
+            const stepItems = document.querySelectorAll('.step-item');
+            if (!stepItems.length) return;
+            stepItems.forEach((item, idx) => {
+                const circle = item.querySelector('.step-circle');
+                circle.classList.remove('active', 'completed');
+                if (idx < stepIndex) {
+                    circle.classList.add('completed');
+                } else if (idx === stepIndex) {
+                    circle.classList.add('active');
+                }
+            });
+            currentStepIndex = stepIndex;
+            const stepNames = ['申请', '数据局初审', '主管部门审核', '结束'];
+            if (stepIndex <= 3) {
+                showToast(`流程状态：${stepNames[stepIndex]} (演示字段模板)`);
+            }
+        }
+
+        function showToast(message) {
+            let toast = document.querySelector('.custom-toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.className = 'custom-toast';
+                toast.style.position = 'fixed';
+                toast.style.bottom = '80px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.backgroundColor = '#1F2937';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '40px';
+                toast.style.fontSize = '0.85rem';
+                toast.style.zIndex = '1000';
+                toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                document.body.appendChild(toast);
+            }
+            toast.innerText = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        function bindActions() {
+            const saveBtn = document.getElementById('saveDraftBtn');
+            const submitBtn = document.getElementById('submitApplyBtn');
+            const cancelBtn = document.getElementById('cancelApplyBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    showToast('草稿已保存（字段定义模板，无具体业务值）');
+                });
+            }
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    if (currentStepIndex < 3) {
+                        updateProcessStep(currentStepIndex + 1);
+                    } else {
+                        showToast('流程已结束，无法重复提交');
+                    }
+                });
+            }
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    if (confirm('确认取消本次申请？流程将重置至“申请”阶段。')) {
+                        updateProcessStep(0);
+                        showToast('已取消申请，流程已重置');
+                    }
+                });
+            }
+        }
+
+        function initDarkMode() {
+            const toggleBtn = document.getElementById('darkModeToggle');
+            toggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const icon = toggleBtn.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                    toggleBtn.innerHTML = '<i class="fas fa-sun"></i> 浅色模式';
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                    toggleBtn.innerHTML = '<i class="fas fa-moon"></i> 深色模式';
+                }
+            });
+        }
+
+        // 初始化流程和表单
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFormSchema();
+            // 设置流程初始状态（申请激活）
+            updateProcessStep(0);
+            bindActions();
+            initDarkMode();
+        });
+    </script>
+</body>
+
+</html>

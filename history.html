@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>知识溯源 | 新点可信知识服务平台</title>
+    <!-- ECharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #F2F5F9;
+            color: #1E2A3E;
+            line-height: 1.4;
+            transition: background 0.3s, color 0.2s;
+        }
+
+        body.dark-mode {
+            background: #111827;
+            color: #E5E7EB;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 (政务蓝主色调) 抬头修改 */
+        .top-nav {
+            background: #0A2B5E;
+            color: white;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        body.dark-mode .top-nav {
+            background: #0B2A4A;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #3B82F6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        /* 修改平台名称 */
+        .platform-name {
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+
+        .platform-sub {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-left: 6px;
+        }
+
+        .search-area {
+            flex: 0 1 400px;
+            position: relative;
+        }
+
+        .search-area input {
+            width: 100%;
+            padding: 8px 16px 8px 36px;
+            border-radius: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-area input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-area input:focus {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .search-area i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .action-icons {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-badge {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: opacity 0.2s;
+        }
+
+        .icon-badge:hover {
+            opacity: 0.8;
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #F97316;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 20px;
+            padding: 2px 6px;
+            line-height: 1;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: #5F9DF0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* 主体布局 */
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 左侧导航简化 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            transition: width 0.2s ease;
+            box-shadow: 1px 0 6px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        body.dark-mode .sidebar {
+            background: #1F2937;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .collapse-btn {
+            background: #F0F4F9;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        body.dark-mode .nav-item {
+            color: #D1D5DB;
+        }
+
+        .nav-item.active {
+            background: #EFF6FF;
+            color: #0A5B8C;
+        }
+
+        .nav-item i {
+            width: 22px;
+        }
+
+        /* 内容区 */
+        .content-area {
+            flex: 1;
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+
+        /* 检索条件区 */
+        .filter-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 30px;
+            align-items: flex-end;
+        }
+
+        body.dark-mode .filter-bar {
+            background: #1F2937;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 150px;
+        }
+
+        .filter-item label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4B6584;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #DCE3EC;
+            background: #FCFDFF;
+            font-size: 0.85rem;
+        }
+
+        body.dark-mode .filter-item input,
+        body.dark-mode .filter-item select {
+            background: #2D3748;
+            border-color: #4B5563;
+            color: #E5E7EB;
+        }
+
+        .search-btn {
+            background: #1E5AA0;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* 四图表卡片网格 */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #eaedf2;
+        }
+
+        body.dark-mode .chart-card {
+            background: #1F2A3E;
+            border-color: #2d3748;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            background: #F9FAFE;
+            border-bottom: 1px solid #EFF3F8;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.dark-mode .card-header {
+            background: #111827;
+            border-bottom-color: #2D3748;
+        }
+
+        .card-header h3 {
+            font-size: 1rem;
+        }
+
+        .chart-container {
+            height: 320px;
+            padding: 12px;
+        }
+
+        .clickable {
+            cursor: pointer;
+            color: #1E5AA0;
+            font-size: 0.7rem;
+        }
+
+        .footer {
+            background: white;
+            border-top: 1px solid #e9edf2;
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #5c6f87;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .footer {
+            background: #111827;
+            border-color: #2d3748;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .custom-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1F2937;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1100px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- 顶部导航，平台名称已修改 -->
+        <div class="top-nav">
+            <div class="logo-area">
+                <div class="logo-icon"><i class="fas fa-landmark"></i></div>
+                <div class="platform-name">新点可信知识服务平台<span class="platform-sub"> · 知识溯源</span></div>
+            </div>
+            <div class="search-area">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="全局搜索：知识要素/调用记录...">
+            </div>
+            <div class="action-icons">
+                <div class="icon-badge"><i class="far fa-bell"></i><span class="badge">3</span></div>
+                <div class="icon-badge"><i class="far fa-check-circle"></i><span class="badge">5</span></div>
+                <div class="user-info">
+                    <div class="avatar">张</div>
+                    <span>张三 <i class="fas fa-chevron-down"></i></span>
+                </div>
+                <button class="theme-toggle" id="darkModeToggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- 左侧导航 (保留框架) -->
+            <div class="sidebar">
+                <script>
+                    // 同时隐藏文字
+                    document.querySelectorAll('.sidebar .nav-item span, .sidebar .nav-group-title span:first-child')
+                        .forEach(function (el) { el.style.display = 'none'; });
+
+                </script>
+                <div class="sidebar-header">
+                    <button class="collapse-btn" id="collapseBtn"><i class="fas fa-bars"></i></button>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-item"><i class="fas fa-chart-line"></i><span>知识看板</span></div>
+                    <div class="nav-item active"><i class="fas fa-code-branch"></i><span>知识溯源</span></div>
+                    <div class="nav-item"><i class="fas fa-history"></i><span>调用记录</span></div>
+                </div>
+            </div>
+
+            <!-- 内容区 -->
+            <div class="content-area">
+                <!-- 检索条件 -->
+                <div class="filter-bar">
+                    <div class="filter-item">
+                        <label>开始时间</label>
+                        <input type="date" id="startDate" value="2026-04-01">
+                    </div>
+                    <div class="filter-item">
+                        <label>结束时间</label>
+                        <input type="date" id="endDate" value="2026-04-30">
+                    </div>
+                    <div class="filter-item">
+                        <label>知识调用主体</label>
+                        <input type="text" id="callSubject" placeholder="请输入调用主体">
+                    </div>
+                    <div class="filter-item">
+                        <label>知识分类</label>
+                        <input type="text" id="knowledgeCategory" placeholder="请输入知识分类">
+                    </div>
+                    <div class="filter-item">
+                        <label>业务场景</label>
+                        <input type="text" id="businessScene" placeholder="请输入业务场景">
+                    </div>
+                    <div class="filter-item">
+                        <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i> 检索</button>
+                    </div>
+                </div>
+
+                <!-- 4个图表div区域 -->
+                <div class="charts-grid">
+                    <!-- div1: 知识调用总体情况 (柱状图: 每天调用总次数，成功/失败组合可以用简单柱状图) 主要展示调用次数 -->
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar"></i> 知识调用总体情况</h3>
+                            <span class="clickable" id="detailCallOverall">调用明细 <i
+                                    class="fas fa-external-link-alt"></i></span>
+                        </div>
+                        <div id="chartOverall" class="chart-container"></div>
+                    </div>
+                    <!-- div2: 知识调用主体top5 (饼状图展示前5) -->
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-building"></i> 知识调用主体 TOP5</h3>
+                            <span class="clickable" id="detailCallSubject">主体明细 <i
+                                    class="fas fa-external-link-alt"></i></span>
+                        </div>
+                        <div id="chartSubject" class="chart-container"></div>
+                    </div>
+                    <!-- div3: 知识分类 (水平条形图) -->
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-tags"></i> 知识分类 · 要素数量 TOP5</h3>
+                            <span class="clickable" id="detailCategory">分类明细 <i
+                                    class="fas fa-external-link-alt"></i></span>
+                        </div>
+                        <div id="chartCategory" class="chart-container"></div>
+                    </div>
+                    <!-- div4: 业务场景 (展示知识要素数量和知识数据总量，双轴图或柱状+折线) -->
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> 业务场景 TOP5</h3>
+                            <span class="clickable" id="detailScene">场景明细 <i
+                                    class="fas fa-external-link-alt"></i></span>
+                        </div>
+                        <div id="chartScene" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>© 2026 新点可信知识服务平台 版权所有 | 苏ICP备 24080123号</div>
+            <div class="footer-links">
+                <span>技术支持</span><span>使用指南</span><span>隐私说明</span><span>政策声明</span>
+            </div>
+        </div>
+    </div>
+    <div class="custom-toast" id="toast"></div>
+
+    <script>
+        // ---------- 模拟数据 (支持动态检索，但提供默认初始展示) ----------
+        // 1. 调用总体情况 (时间维度 每天调用总次数)
+        let overallData = [
+            { 时间: "2026-04-10", 调用次数: 3500 },
+            { 时间: "2026-04-11", 调用次数: 6600 },
+            { 时间: "2026-04-12", 调用次数: 6600 },
+            { 时间: "2026-04-13", 调用次数: 6600 },
+            { 时间: "2026-04-14", 调用次数: 8900 }
+        ];
+        // 补充本月更多数据用于展示
+        const fullMonthData = [
+            { 时间: "2026-04-01", 调用次数: 2100 }, { 时间: "2026-04-02", 调用次数: 2400 }, { 时间: "2026-04-03", 调用次数: 2800 },
+            { 时间: "2026-04-04", 调用次数: 3000 }, { 时间: "2026-04-05", 调用次数: 3200 }, { 时间: "2026-04-06", 调用次数: 4100 },
+            { 时间: "2026-04-07", 调用次数: 4500 }, { 时间: "2026-04-08", 调用次数: 4900 }, { 时间: "2026-04-09", 调用次数: 5200 },
+            { 时间: "2026-04-10", 调用次数: 5500 }, { 时间: "2026-04-11", 调用次数: 6600 }, { 时间: "2026-04-12", 调用次数: 6600 },
+            { 时间: "2026-04-13", 调用次数: 6600 }, { 时间: "2026-04-14", 调用次数: 8900 }
+        ];
+        // 2. 调用主体top5
+        let subjectData = [
+            { 调用主体: "市场监管局", 调用次数: 1000 },
+            { 调用主体: "城管局", 调用次数: 800 },
+            { 调用主体: "人社局", 调用次数: 800 },
+            { 调用主体: "体育局", 调用次数: 800 },
+            { 调用主体: "商务局", 调用次数: 700 }
+        ];
+        // 3. 知识分类要素数量 top5
+        let categoryData = [
+            { 知识分类: "自然人信息", 要素数量: 30 },
+            { 知识分类: "教育信息", 要素数量: 15 },
+            { 知识分类: "学校信息", 要素数量: 20 },
+            { 知识分类: "房产信息", 要素数量: 20 },
+            { 知识分类: "生育信息", 要素数量: 20 }
+        ];
+        // 4. 业务场景top5 (知识要素数量 & 知识数据总量)
+        let sceneData = [
+            { 业务场景: "外来务工人员子女入学", 知识要素数量: 30, 知识数据总量: 1800 },
+            { 业务场景: "企业上市", 知识要素数量: 15, 知识数据总量: 240 },
+            { 业务场景: "人才引进落户", 知识要素数量: 20, 知识数据总量: 860 },
+            { 业务场景: "惠企政策", 知识要素数量: 20, 知识数据总量: 600 },
+            { 业务场景: "工程建设项目审批", 知识要素数量: 20, 知识数据总量: 3079 }
+        ];
+
+        let overallChart, subjectChart, categoryChart, sceneChart;
+
+        // 初始化图表
+        function initCharts() {
+            // 1. 柱状图 - 调用总体情况
+            const overallDom = document.getElementById('chartOverall');
+            if (overallDom) {
+                overallChart = echarts.init(overallDom);
+                updateOverallChart(fullMonthData);
+            }
+            // 2. 饼图 - 调用主体top5
+            const subjectDom = document.getElementById('chartSubject');
+            if (subjectDom) {
+                subjectChart = echarts.init(subjectDom);
+                updateSubjectChart(subjectData);
+            }
+            // 3. 条形图 - 知识分类要素数量
+            const categoryDom = document.getElementById('chartCategory');
+            if (categoryDom) {
+                categoryChart = echarts.init(categoryDom);
+                updateCategoryChart(categoryData);
+            }
+            // 4. 柱状图+折线组合 - 业务场景
+            const sceneDom = document.getElementById('chartScene');
+            if (sceneDom) {
+                sceneChart = echarts.init(sceneDom);
+                updateSceneChart(sceneData);
+            }
+        }
+
+        function updateOverallChart(data) {
+            const dates = data.map(item => item.时间);
+            const counts = data.map(item => item.调用次数);
+            overallChart.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { top: 30, left: 50, right: 20, bottom: 30 },
+                xAxis: { type: 'category', data: dates, axisLabel: { rotate: 30 } },
+                yAxis: { type: 'value', name: '调用次数' },
+                series: [{
+                    name: '调用次数', type: 'bar', data: counts,
+                    itemStyle: { borderRadius: [6, 6, 0, 0], color: '#1E5AA0' }
+                }]
+            });
+            // 点击柱状图弹窗明细
+            overallChart.off('click');
+            overallChart.on('click', function (params) {
+                if (params.componentType === 'series') {
+                    window.open('history_list.html', '_blank');
+                }
+            });
+        }
+
+        function updateSubjectChart(data) {
+            const names = data.map(item => item.调用主体);
+            const values = data.map(item => item.调用次数);
+            subjectChart.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { orient: 'vertical', left: 'left' },
+                series: [{
+                    type: 'pie', radius: '55%', data: data.map(d => ({ name: d.调用主体, value: d.调用次数 })),
+                    emphasis: { scale: true }, label: { show: true, formatter: '{b}: {d}%' }
+                }]
+            });
+            subjectChart.off('click');
+            subjectChart.on('click', function (params) {
+                if (params.name) window.open('history_list.html', '_blank');
+            });
+        }
+
+        function updateCategoryChart(data) {
+            const categories = data.map(item => item.知识分类);
+            const values = data.map(item => item.要素数量);
+            categoryChart.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { containLabel: true, left: '15%' },
+                xAxis: { type: 'value', name: '要素数量' },
+                yAxis: { type: 'category', data: categories, axisLabel: { fontSize: 11 } },
+                series: [{
+                    name: '要素数量', type: 'bar', data: values,
+                    itemStyle: { borderRadius: [0, 6, 6, 0], color: '#2C7DA0' }
+                }]
+            });
+            categoryChart.off('click');
+            categoryChart.on('click', function (params) {
+                if (params.name) window.open('history_list.html', '_blank');
+            });
+        }
+
+        function updateSceneChart(data) {
+            const scenes = data.map(item => item.业务场景);
+            const elementCount = data.map(item => item.知识要素数量);
+            const dataTotal = data.map(item => item.知识数据总量);
+            sceneChart.setOption({
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['知识要素数量', '知识数据总量'] },
+                xAxis: { type: 'category', data: scenes, axisLabel: { rotate: 20, fontSize: 10 } },
+                yAxis: [{ type: 'value', name: '要素数量' }, { type: 'value', name: '数据总量' }],
+                series: [
+                    { name: '知识要素数量', type: 'bar', data: elementCount, itemStyle: { color: '#3B82F6' } },
+                    { name: '知识数据总量', type: 'line', yAxisIndex: 1, data: dataTotal, symbol: 'circle', lineStyle: { color: '#F97316', width: 2 } }
+                ]
+            });
+            sceneChart.off('click');
+            sceneChart.on('click', function (params) {
+                if (params.componentType === 'series') window.open('history_list.html', '_blank');
+            });
+        }
+
+        // 模拟检索刷新（根据输入框简单过滤，为演示仅局部变化）
+        function refreshData() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const subjectFilter = document.getElementById('callSubject').value.trim();
+            const categoryFilter = document.getElementById('knowledgeCategory').value.trim();
+            const sceneFilter = document.getElementById('businessScene').value.trim();
+            showToast(`检索条件：时间 ${start} 至 ${end}，主体:${subjectFilter || '全部'}，分类:${categoryFilter || '全部'}, 场景:${sceneFilter || '全部'} (演示数据模拟刷新)`);
+            // 根据日期筛选总体数据（演示轻微改动）
+            let filteredOverall = [...fullMonthData];
+            if (start && end) {
+                filteredOverall = fullMonthData.filter(d => d.时间 >= start && d.时间 <= end);
+                if (filteredOverall.length === 0) filteredOverall = fullMonthData.slice(0, 5);
+            }
+            updateOverallChart(filteredOverall);
+            // 其余图表也可根据输入框做一些微小变更(简单示例)
+            let newSubject = [...subjectData];
+            if (subjectFilter) {
+                const match = subjectData.find(s => s.调用主体.includes(subjectFilter));
+                if (match) newSubject = [match];
+                else newSubject = subjectData;
+            }
+            updateSubjectChart(newSubject);
+            // 知识分类过滤
+            let newCategory = [...categoryData];
+            if (categoryFilter) {
+                const matchCat = categoryData.find(c => c.知识分类.includes(categoryFilter));
+                if (matchCat) newCategory = [matchCat];
+                updateCategoryChart(newCategory);
+            } else updateCategoryChart(categoryData);
+            // 业务场景过滤
+            let newScene = [...sceneData];
+            if (sceneFilter) {
+                const matchScene = sceneData.find(s => s.业务场景.includes(sceneFilter));
+                if (matchScene) newScene = [matchScene];
+                updateSceneChart(newScene);
+            } else updateSceneChart(sceneData);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        // 绑定明细按钮弹出页面
+        document.getElementById('detailCallOverall')?.addEventListener('click', () => window.open('history_list.html', '_blank'));
+        document.getElementById('detailCallSubject')?.addEventListener('click', () => window.open('history_list.html', '_blank'));
+        document.getElementById('detailCategory')?.addEventListener('click', () => window.open('history_list.html', '_blank'));
+        document.getElementById('detailScene')?.addEventListener('click', () => window.open('history_list.html', '_blank'));
+        document.getElementById('searchBtn')?.addEventListener('click', refreshData);
+
+        // 折叠侧边栏
+        let collapsed = false;
+        const sidebar = document.querySelector('.sidebar');
+        const collapseBtn = document.getElementById('collapseBtn');
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', () => {
+                collapsed = !collapsed;
+                sidebar.style.width = collapsed ? '72px' : '260px';
+                document.querySelectorAll('.nav-item span').forEach(span => span.style.display = collapsed ? 'none' : 'inline');
+            });
+        }
+        // 深色模式
+        const toggleBtn = document.getElementById('darkModeToggle');
+        toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const icon = toggleBtn.querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+            // 重新适配图表背景色
+            const isDark = document.body.classList.contains('dark-mode');
+            const bgColor = isDark ? '#1F2A3E' : '#FFFFFF';
+            [overallChart, subjectChart, categoryChart, sceneChart].forEach(ch => {
+                if (ch) ch.setOption({ backgroundColor: bgColor });
+            });
+        });
+        // 响应窗口大小
+        window.addEventListener('resize', () => {
+            [overallChart, subjectChart, categoryChart, sceneChart].forEach(ch => ch?.resize());
+        });
+        // 初始化
+        initCharts();
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sidebar && sidebar.style.width !== '72px') {
+                collapseBtn.click();  // 自动点击一次
+            }
+        });
+    </script>
+</body>
+
+</html>

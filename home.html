@@ -602,13 +602,13 @@
                 <!-- 高频应用快捷入口（知识申请、知识溯源、知识管理、知识治理、知识运营）-->
                 <div class="card">
                     <div class="card-header">⚡ 高频应用快捷入口</div>
-                    <div class="app-grid">
-                        <div class="app-item" data-module="知识申请"><i class="fas fa-file-alt"></i>知识申请</div>
-                        <div class="app-item" data-module="知识溯源"><i class="fas fa-code-branch"></i>知识溯源</div>
-                        <div class="app-item" data-module="知识管理"><i class="fas fa-database"></i>知识管理</div>
+                    <div class="app-grid">                        
+                        <div class="app-item" data-module="知识采集"><i class="fas fa-file-alt"></i>知识采集</div>
                         <div class="app-item" data-module="知识治理"><i class="fas fa-robot"></i>知识治理</div>
+                        <div class="app-item" data-module="知识优化"><i class="fas fa-robot"></i>知识优化</div>
+                        <div class="app-item" data-module="知识管理"><i class="fas fa-database"></i>知识管理</div>
                         <div class="app-item" data-module="知识运营"><i class="fas fa-robot"></i>知识运营</div>
-                        <div class="app-item" data-module="系统管理"><i class="fas fa-robot"></i>系统管理</div>
+                        <div class="app-item" data-module="知识溯源"><i class="fas fa-code-branch"></i>知识溯源</div>
                     </div>
                     <div style="margin-top: 16px; font-size:0.7rem; color:#6c7a91; text-align:center;">—— 一站式知识服务 ——
                     </div>
@@ -660,16 +660,18 @@
                 <div class="data-title"><i class="fas ${getIconForName(item.name)}"></i> ${item.name}</div>
                 <div class="data-meta">
                     <span><i class="fas fa-database"></i> 数据主体来源：${item.source}</span>
-                    <span><i class="far fa-calendar-alt"></i> 发布时间：${item.publishDate}</span>
+                     <span><i class="fas fa-eye"></i> 可信度：<span class="dynamic-number" data-value="100">0</span></span>
+                    
                 </div>
                 <div class="data-meta">
                     <span><i class="fas fa-eye"></i> 访问量：<span class="dynamic-number" data-value="${item.views}">0</span></span>
                     <span><i class="fas fa-file-signature"></i> 申请量：<span class="dynamic-number" data-value="${item.applications}">0</span></span>
+                   <span><i class="far fa-calendar-alt"></i> 发布时间：${item.publishDate}</span>
                 </div>
                 <div class="api-link"><i class="fas fa-plug"></i> API接口地址：${item.api}</div>
                 <div class="card-actions">
                     <button class="btn-outline view-detail" data-name="${item.name}"><i class="fas fa-info-circle"></i> 查看详细</button>
-                    <button class="btn-primary apply-knowledge" data-name="${item.name}"><i class="fas fa-pen-alt"></i> 知识申请</button>
+                    <button class="btn-primary apply-knowledge" data-name="${item.name}"><i class="fas fa-pen-alt"></i> 知识申请</button>                    
                 </div>
             `;
                 container.appendChild(cardDiv);
@@ -776,7 +778,14 @@
                 const moduleName = app.getAttribute('data-module') || app.innerText.trim();
                 if (moduleName == "知识溯源") {
                     window.open('history.html');
-                } else {
+                }
+                else if (moduleName == "知识采集") {
+                    window.open('auto-collection.html');
+                }
+                else if (moduleName == "知识优化") {
+                    window.open('knowledge-optimization.html');
+                }
+                else {
                     window.open('process.html');
                 }
                 //alert(`快速进入【${moduleName}】模块，高效协同政务办公。`);

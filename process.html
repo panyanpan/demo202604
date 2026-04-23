@@ -440,10 +440,11 @@
                         <i class="fas fa-chevron-down toggle-icon"></i>
                     </div>
                     <ul class="nav-submenu">
+                        <li data-module="rule-mgmt" onclick="window.open('auto-collection.html')">知识采集</li>
                         <li data-module="rule-mgmt">规则管理</li>
                         <li data-module="gov-mgmt">知识治理</li>
                         <li data-module="audit">人工审核</li>
-                        <li data-module="issue-raise">知识问题发起整改</li>
+                        <li data-module="issue-raise" onclick="window.open('knowledge-optimization.html')">知识优化</li>
                         <li data-module="issue-handle">知识问题处置</li>
                     </ul>
                 </div>
@@ -653,8 +654,8 @@
                     const titleMap = {
                         'knowledge-category': '知识分类', 'metadata-mgmt': '知识元数据管理',
                         'doc-category': '知识文档分类', 'doc-mgmt': '知识文档管理', 'rights-mgmt': '知识权限管理',
-                        'rule-mgmt': '规则管理', 'gov-mgmt': '知识治理', 'audit': '人工审核',
-                        'issue-raise': '知识问题发起整改', 'issue-handle': '知识问题处置',
+                        'rule-mgmt': '知识采集', 'gov-mgmt': '规则管理', 'gov-mgmt': '知识治理', 'audit': '人工审核',
+                        'issue-raise': '知识优化', 'issue-handle': '知识问题处置',
                         'knowledge-publish': '知识发布', 'external-audit': '外部申请审核', 'knowledge-trace': '知识溯源',
                         'sys-param': '系统管理-参数', 'log-mgmt': '日志管理'
                     };
